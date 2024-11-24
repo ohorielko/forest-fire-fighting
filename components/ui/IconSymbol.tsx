@@ -1,4 +1,4 @@
-// This file is a fallback for using MaterialIcons on Android and web.
+// This file is a fallback for using MaterialIcons on Android and web.treemap
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SymbolWeight } from 'expo-symbols';
@@ -9,10 +9,11 @@ import { OpaqueColorValue, StyleProp, ViewStyle } from 'react-native';
 const MAPPING = {
   // See MaterialIcons here: https://icons.expo.fyi
   // See SF Symbols in the SF Symbols app on Mac.
-  'house.fill': 'home',
-  'paperplane.fill': 'send',
+  'map.fill': 'map',
+  'forest': 'forest',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'account': 'account-circle'
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],

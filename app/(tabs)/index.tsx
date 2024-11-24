@@ -1,74 +1,108 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { Collapsible } from '@/components/Collapsible';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { MaterialIcons } from '@expo/vector-icons';
 
-export default function HomeScreen() {
+export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: '#FFC9C9', dark: '#401616' }}
       headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+        <MaterialIcons 
+          color="#FF6B6B" 
+          name="local-fire-department" // Fire icon
+          size={310} 
         />
       }>
+      {/* Title */}
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <ThemedText type="title">Fire Zones</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+
+      {/* Display Image */}
+      <View style={styles.imageContainer}>
+        <Image
+          source={require('../../assets/images/forestfire.png')}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </View>
+
+      {/* Fire Zone 1 */}
+      <Collapsible title="Fire Zone 1">
         <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
+          <ThemedText type="defaultSemiBold">Severity:</ThemedText> High 🔥
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
         <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
+          <ThemedText type="defaultSemiBold">Location:</ThemedText> Forest Edge
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
         <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+          <ThemedText type="defaultSemiBold">Coordinates:</ThemedText> {'<-120.50, 85.75>'}
         </ThemedText>
-      </ThemedView>
+        <View style={styles.actionRow}>
+          <ThemedText style={{ marginRight: 10 }} type="defaultSemiBold">
+            View Detailed Report
+          </ThemedText>
+          <MaterialIcons 
+            name="description" 
+            size={40} 
+            color="gray" 
+          />
+        </View>
+      </Collapsible>
+
+      {/* Fire Zone 2 */}
+      <Collapsible title="Fire Zone 2">
+        <ThemedText>
+          <ThemedText type="defaultSemiBold">Severity:</ThemedText> Moderate 🔥
+        </ThemedText>
+        <ThemedText>
+          <ThemedText type="defaultSemiBold">Location:</ThemedText> Near Lake
+        </ThemedText>
+        <ThemedText>
+          <ThemedText type="defaultSemiBold">Coordinates:</ThemedText> {'<-110.30, 92.40>'}
+        </ThemedText>
+        <View style={styles.actionRow}>
+          <ThemedText style={{ marginRight: 10 }} type="defaultSemiBold">
+            View Detailed Report
+          </ThemedText>
+          <MaterialIcons 
+            name="description" 
+            size={40} 
+            color="gray" 
+          />
+        </View>
+      </Collapsible>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  headerImage: {
+    color: '#808080',
+    bottom: -90,
+    left: -35,
+    position: 'absolute',
+  },
   titleContainer: {
     flexDirection: 'row',
+    gap: 8,
+  },
+  imageContainer: {
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  image: {
+    width: 300,
+    height: 300,
+    borderRadius: 5,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    justifyContent: 'center',
   },
 });
