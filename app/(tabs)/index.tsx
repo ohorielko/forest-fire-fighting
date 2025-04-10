@@ -6,6 +6,9 @@ import { ThemedView } from '@/components/ThemedView';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { MaterialIcons } from '@expo/vector-icons';
 
+import RealtimeStatusBar from '@/components/RealtimeStatusBar';
+import InAppNotifications from '@/components/InAppNotifications';
+
 export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
@@ -21,6 +24,10 @@ export default function TabTwoScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Fire Zones</ThemedText>
       </ThemedView>
+
+      <RealtimeStatusBar />
+
+      <InAppNotifications maxNotifications={3} />
 
       {/* Display Image */}
       <View style={styles.imageContainer}>
