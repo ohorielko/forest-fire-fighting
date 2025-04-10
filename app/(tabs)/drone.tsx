@@ -1,11 +1,16 @@
-import { Modal, StyleSheet, TouchableOpacity, View, Dimensions, Text, Alert } from "react-native";
-import { useEffect, useState } from 'react';
+import { Modal, StyleSheet, TouchableOpacity, View, Dimensions, Text, Alert, FlatList } from "react-native";
+import { useEffect, useState, useMemo } from 'react';
 import { CameraView, useCameraPermissions, Camera } from 'expo-camera'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { debounce } from 'lodash';
 
 // Custom Icon imports
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
+
+type Drone = {
+    name: string; //only name for now
+  };
 
 export default function Drone(){
     const[status, requestPermission] = useCameraPermissions();
@@ -13,20 +18,55 @@ export default function Drone(){
     const[cameraModalVisible, setCameraModalVisible] = useState(false);
     const[scanned, setScanned] = useState(false);
 
-    //handles barcode scanning
-    const handleBarCodeScanned = ({ type, data }) => {
-        if(scanned) return;
+    // Drone array to store drone list
+    const [drones, setDrones] = useState<Drone[]>([]); 
 
+    //handles barcode scanning
+    const handleBarCodeScanned = useMemo(() => debounce(({ type, data }) => {
+        if(scanned) return;
         setScanned(true);
-        Alert.alert(
-            "QR Code Scanned",
-            `Type: ${type}\nData: ${data}`,
-            [{ text: "OK", onPress: () => {
-                setCameraModalVisible(false);  
-                }
-            }]
-        );
-    };
+
+        try {
+            const scannedDrone = JSON.parse(data);
+
+            if(!scannedDrone.name){
+                throw new Error("Invalid Json String");
+            }
+
+            //check if already in the table
+            const exists = drones.some(drone => drone.name === scannedDrone.name);
+            if(exists) {
+                throw new Error(`Drone "${scannedDrone.name}" already exists`);
+            }
+            
+            //no duplication error found
+            setDrones(prevDrones => [...prevDrones, { name: scannedDrone.name }]);
+    
+            Alert.alert(
+                "QR Code Scanned",
+                `Added: ${scannedDrone.name}`,
+                [{ text: "OK", onPress: () => 
+                    setCameraModalVisible(false)
+                }]
+            );
+        } catch (error){
+
+            let errorMessage = "";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+              } else if (typeof error === 'string') {
+                errorMessage = error;
+              }
+
+            Alert.alert(
+                "Error",
+                errorMessage,
+                [{ text: "OK", onPress: () => setCameraModalVisible(false)}]
+            )
+        }
+
+    }, 1000), [scanned]); // 1 second debounce
 
     //syncs with camera to show modal
     useEffect(() => {
@@ -35,6 +75,10 @@ export default function Drone(){
         } else {
             setScanned(false);
         }
+        
+        return () => {
+            setScanned(false); //tests
+        };
     }, [cameraModalVisible]);
 
     return(
@@ -47,6 +91,21 @@ export default function Drone(){
                     <Text style={styles.headerText}>Drone List</Text>
                 </View>
             </View>
+
+            <FlatList
+                data={drones}
+                renderItem={({ item }) => (
+                    <View style={styles.droneItem}>
+                        <Text style={styles.droneName}>{item.name}</Text>
+                    </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={styles.listContainer}
+                ListEmptyComponent={
+                <Text style={styles.emptyText}>No drones added yet. Scan a QR code to add one!</Text>
+                }
+                />
+            
             </SafeAreaView>
 
             {/* button right add drone manually */}
@@ -68,7 +127,10 @@ export default function Drone(){
             {/* Camera Modal */}
             <Modal 
                 visible= {cameraModalVisible} transparent animationType="slide"
-                onRequestClose= {() => setCameraModalVisible(false)}
+                onRequestClose={() => {
+                    setCameraModalVisible(false);
+                    setScanned(false); // Reset for next time
+                }}
                 >
                 
                 <View style={styles.modalContainer}>
@@ -165,6 +227,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#000000',
       },
+    // Style for Title
       titleContainer: {
         gap: 8,
         flexDirection: 'row',
@@ -173,5 +236,28 @@ const styles = StyleSheet.create({
       headerText:{
         color: '#FFFFFF',
         fontSize: 40,
+      },
+    //   Style for list
+      listContainer: { 
+        paddingHorizontal: 16,
+        paddingTop: 20,
+        paddingBottom: 120, 
+      },
+      droneItem: {
+        backgroundColor: '#2C3E50',
+        padding: 16,
+        borderRadius: 8,
+        marginBottom: 12,
+      },
+      droneName: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
+      },
+      emptyText: {
+        color: '#BDC3C7',
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 20,
       }
 });
