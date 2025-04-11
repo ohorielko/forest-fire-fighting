@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
@@ -8,10 +8,21 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
+import LoginScreen from './LoginScreen';  // Import the login screen
 
 
 export default function TabLayout() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);  // Track login state
   const colorScheme = useColorScheme();
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);  // After login, set state to true
+  };
+
+  if (!isLoggedIn) {
+    return <LoginScreen onLogin={handleLogin} />;  // Show login screen until logged in
+  }
+  
 
   return (
     <Tabs
