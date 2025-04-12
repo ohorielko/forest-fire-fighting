@@ -1,23 +1,41 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, Alert, TouchableOpacity, StyleSheet } from 'react-native';
+import { supabase } from '../../lib/supabase'; // adjust path as needed
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleLogin = () => {
-    if (email && password) {
-      // Simulate a successful login
-      onLogin();
-    } else {
+  const handleAuth = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Please enter both email and password.');
+      return;
+    }
+
+    try {
+      let response;
+
+      if (isSignUp) {
+        response = await supabase.auth.signUp({ email, password });
+      } else {
+        response = await supabase.auth.signInWithPassword({ email, password });
+      }
+
+      if (response.error) {
+        Alert.alert('Authentication error', response.error.message);
+      } else {
+        onLogin();
+      }
+    } catch (error) {
+      Alert.alert('Unexpected error', (error as Error).message);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>Please login to continue</Text>
+      <Text style={styles.title}>{isSignUp ? 'Sign Up' : 'Welcome Back'}</Text>
+      <Text style={styles.subtitle}>{isSignUp ? 'Create your account' : 'Please login to continue'}</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
@@ -39,13 +57,15 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
         />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={styles.button} onPress={handleAuth}>
+        <Text style={styles.buttonText}>{isSignUp ? 'Sign Up' : 'Login'}</Text>
       </TouchableOpacity>
 
       <View style={styles.footer}>
-        <TouchableOpacity onPress={() => Alert.alert('Navigate to sign up')}>
-          <Text style={styles.footerText}>Don't have an account? Sign Up</Text>
+        <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
+          <Text style={styles.footerText}>
+            {isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
