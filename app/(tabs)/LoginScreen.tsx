@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, Alert, TouchableOpacity, StyleSheet } from 'react-native';
-import { supabase } from '../../lib/supabase'; // adjust path as needed
+import { auth } from '../../lib/firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
@@ -14,21 +15,14 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
     }
 
     try {
-      let response;
-
       if (isSignUp) {
-        response = await supabase.auth.signUp({ email, password });
+        await createUserWithEmailAndPassword(auth, email, password);
       } else {
-        response = await supabase.auth.signInWithPassword({ email, password });
+        await signInWithEmailAndPassword(auth, email, password);
       }
-
-      if (response.error) {
-        Alert.alert('Authentication error', response.error.message);
-      } else {
-        onLogin();
-      }
-    } catch (error) {
-      Alert.alert('Unexpected error', (error as Error).message);
+      onLogin();
+    } catch (error: any) {
+      Alert.alert('Authentication error', error.message);
     }
   };
 
