@@ -77,4 +77,10 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  headerImage: 
+  { width: 310, 
+    height: 310, 
+    alignSelf: 
+    'center' 
+  },
 });
