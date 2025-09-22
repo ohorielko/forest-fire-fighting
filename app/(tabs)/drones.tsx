@@ -8,12 +8,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function TabTwoScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [droneModel, setDroneModel] = useState("");
   const [droneModels, setDroneModels] = useState<any[]>([]);
   const insets = useSafeAreaInsets();
+  const navigation: any = useNavigation();
 
   const handleAddDrone = () => {
     if (droneModel) {
@@ -69,12 +71,15 @@ export default function TabTwoScreen() {
           <ThemedText>
             <ThemedText type="defaultSemiBold">Coordinates:</ThemedText> {drone.coordinates}
           </ThemedText>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-            <ThemedText type="defaultSemiBold">
-              View Camera Feed
-            </ThemedText>
-            <MaterialIcons name="camera-alt" size={40} color="gray" />
-          </View>
+           <TouchableOpacity
+              style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
+              onPress={() => navigation.navigate("DroneCameraFeed")}
+            >
+              <ThemedText type="defaultSemiBold">
+                View Camera Feed
+              </ThemedText>
+              <MaterialIcons name="camera-alt" size={40} color="gray" />
+            </TouchableOpacity>
           <ThemedText
               style={{ color: 'red', fontSize: 14, marginTop: 10 }}
               onPress={() => handleRemoveDrone(drone.model)}
