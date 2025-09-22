@@ -8,7 +8,7 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { MaterialIcons } from '@expo/vector-icons';
-import LoginScreen from './LoginScreen';  // Import the login screen
+import LoginScreen from '../LoginScreen';  // Import the login screen
 
 
 export default function TabLayout() {

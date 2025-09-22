@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, Alert, TouchableOpacity, StyleSheet } from 'react-native';
-import { auth } from '../../lib/firebase';
+import { auth } from '../lib/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
