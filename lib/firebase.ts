@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCNRZRkkAxKScM759_8mJWfqcsf5J8GXic",
+  apiKey: "<Api Key>",
   authDomain: "drone-stream-473321.firebaseapp.com",
   projectId: "drone-stream-473321",
   storageBucket: "drone-stream-473321.firebasestorage.app",
