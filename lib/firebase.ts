@@ -2,8 +2,9 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
+
 const firebaseConfig = {
-  apiKey: "<Api Key>",
+  apiKey: "API Key",
   authDomain: "drone-stream-473321.firebaseapp.com",
   projectId: "drone-stream-473321",
   storageBucket: "drone-stream-473321.firebasestorage.app",
