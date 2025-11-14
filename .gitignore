@@ -36,3 +36,8 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Drone video simulator - sensitive files
+drone-video-simulator/my-service-account-key.json
+drone-video-simulator/*.json
+drone-video-simulator/stream/

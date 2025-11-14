@@ -1,0 +1,21 @@
+# Service account credentials - NEVER COMMIT!
+my-service-account-key.json
+*.json
+
+# Video stream files
+stream/
+*.ts
+*.m3u8
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
