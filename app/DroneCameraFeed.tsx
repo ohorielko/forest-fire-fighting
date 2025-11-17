@@ -9,21 +9,26 @@ export default function DroneCameraFeed() {
 
   return (
     <View style={styles.container}>
-      <Video
-        ref={videoRef}
-        style={styles.video}
-        source={{
-          uri: 'https://raspi-stream-5308758889df27.us-east1.run.app/playlist.m3u8',
-        }}
-        useNativeControls
-        resizeMode={ResizeMode.CONTAIN}
-        isLooping={false}
-        onPlaybackStatusUpdate={(playbackStatus: AVPlaybackStatus) => {
-          setStatus(playbackStatus);
-          setIsLoading(!playbackStatus.isLoaded);
-        }}
-        onError={(error) => console.log('Video error:', error)}
-      />
+    <Video
+            ref={videoRef}
+            style={styles.video}
+            source={{
+              uri: 'https://raspi-stream-530875888927.us-east1.run.app/playlist.m3u8',
+            }}
+            shouldPlay={true} 
+            useNativeControls
+            resizeMode={ResizeMode.CONTAIN}
+            isLooping={true}
+            onPlaybackStatusUpdate={(playbackStatus: AVPlaybackStatus) => {
+              setStatus(playbackStatus);
+              if (!playbackStatus.isLoaded) {
+                setIsLoading(true);
+              } else {
+                setIsLoading(false); 
+              }
+            }}
+            onError={(error) => console.log('Video error:', error)}
+          />
       
       {isLoading && (
         <View style={styles.loadingContainer}>

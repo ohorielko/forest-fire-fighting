@@ -7,8 +7,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore'; 
+
+// --- FIX 1: Import 'telemetary' instead of 'db' ---
+import { telemetary, db } from '../../lib/firebase'; 
 
 export default function TabTwoScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -17,33 +19,40 @@ export default function TabTwoScreen() {
 
   const insets = useSafeAreaInsets();
   const navigation: any = useNavigation();
-
-  // Fetch drone data from Firestore
-  const fetchDrone = async () => {
-    const docRef = doc(db, "telemdata", "drone123");
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      setDroneModels([{
-        model: data.droneId,
-        battery: data.battery,
-        coordinates: `<${data.lat}, ${data.lon}>`,
-        alt: data.alt,
-        pitch: data.pitch,
-        roll: data.roll,
-        yaw: data.yaw,
-        timestamp: data.timestamp?.toDate().toLocaleString(),
-      }]);
-    } else {
-      console.log("No such drone!");
-    }
-  };
-
-  // Load drone on mount
+  
   useEffect(() => {
-    fetchDrone();
-  }, []);
+    // --- FIX 2: Use 'telemetary' here ---
+    const docRef = doc(telemetary, "telemdata", "drone123");
+
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        console.log("Drone data found!", docSnap.data()); // For debugging
+        const data = docSnap.data();
+        setDroneModels([{
+          model: data.droneId,
+          battery: data.battery,
+          coordinates: `<${data.lat}, ${data.lon}>`,
+          alt: data.alt,
+          pitch: data.pitch,
+          roll: data.roll,
+          yaw: data.yaw,
+          timestamp: data.timestamp?.toDate().toLocaleString(),
+        }]);
+      } else {
+        // This will run if the rules are wrong OR the doc is missing
+        console.log("Listening... No such document 'drone123' found in 'telemdata' collection.");
+        setDroneModels([]); 
+      }
+    }, (error) => {
+      // This will CATCH the "permission-denied" error if it's still there
+      console.error("Snapshot Error: ", error.message);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+    
+  }, []); 
 
   const handleAddDrone = () => {
     if (droneModel) {
@@ -82,40 +91,42 @@ export default function TabTwoScreen() {
       >
         <ThemedView style={[styles.titleContainer, { justifyContent: 'space-between', alignItems: 'center' }]}>
           <ThemedText type="title">Your drones</ThemedText>
-
-          {/* Refresh button */}
-          <TouchableOpacity onPress={fetchDrone} style={styles.refreshButton}>
-            <MaterialIcons name="refresh" size={28} color="#3F5B41" />
-          </TouchableOpacity>
         </ThemedView>
 
-        {droneModels.map((drone, index) => (
-          <Collapsible key={index} title={drone.model}>
-            <ThemedText><ThemedText type="defaultSemiBold">Battery:</ThemedText> {drone.battery}% 🔋</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Model:</ThemedText> {drone.model}</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Coordinates:</ThemedText> {drone.coordinates}</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Altitude:</ThemedText> {drone.alt} m</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Pitch:</ThemedText> {drone.pitch}°</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Roll:</ThemedText> {drone.roll}°</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Yaw:</ThemedText> {drone.yaw}°</ThemedText>
-            <ThemedText><ThemedText type="defaultSemiBold">Last Update:</ThemedText> {drone.timestamp}</ThemedText>
+        {droneModels.length === 0 ? (
+          <ThemedText style={{textAlign: 'center', marginTop: 20, paddingHorizontal: 10}}>
+            Listening for drone data...
+            (If this stays, check console logs for "Snapshot Error")
+          </ThemedText>
+        ) : (
+          droneModels.map((drone, index) => (
+            <Collapsible key={index} title={drone.model}>
+              <ThemedText><ThemedText type="defaultSemiBold">Battery:</ThemedText> {drone.battery}% 🔋</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Model:</ThemedText> {drone.model}</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Coordinates:</ThemedText> {drone.coordinates}</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Altitude:</ThemedText> {drone.alt} m</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Pitch:</ThemedText> {drone.pitch}°</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Roll:</ThemedText> {drone.roll}°</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Yaw:</ThemedText> {drone.yaw}°</ThemedText>
+              <ThemedText><ThemedText type="defaultSemiBold">Last Update:</ThemedText> {drone.timestamp}</ThemedText>
 
-            <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
-              onPress={() => navigation.navigate("DroneCameraFeed")}
-            >
-              <ThemedText type="defaultSemiBold">View Camera Feed</ThemedText>
-              <MaterialIcons name="camera-alt" size={40} color="gray" />
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
+                onPress={() => navigation.navigate("DroneCameraFeed")}
+              >
+                <ThemedText type="defaultSemiBold">View Camera Feed</ThemedText>
+                <MaterialIcons name="camera-alt" size={40} color="gray" />
+              </TouchableOpacity>
 
-            <ThemedText
-              style={{ color: 'red', fontSize: 14, marginTop: 10 }}
-              onPress={() => handleRemoveDrone(drone.model)}
-            >
-              Remove Drone
-            </ThemedText>
-          </Collapsible>
-        ))}
+              <ThemedText
+                style={{ color: 'red', fontSize: 14, marginTop: 10 }}
+                onPress={() => handleRemoveDrone(drone.model)}
+              >
+                Remove Drone
+              </ThemedText>
+            </Collapsible>
+          ))
+        )}
       </ParallaxScrollView>
 
       <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
@@ -150,7 +161,6 @@ export default function TabTwoScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: { flexDirection: 'row', gap: 8 },
-  refreshButton: { padding: 4, marginLeft: 8 },
   floatingButton: {
     position: "absolute", bottom: 100, right: 20, backgroundColor: "#3F5B41",
     width: 60, height: 60, borderRadius: 30, justifyContent: "center", alignItems: "center",
